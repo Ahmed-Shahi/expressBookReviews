@@ -20,28 +20,53 @@ public_users.post("/register", (req,res) => {
   return res.status(404).json({message: "Unable to register user."});
 });
 
-// Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  res.send(JSON.stringify(books, null, 4));
+// Get the book list available in the shop using Promises (Task 10)
+public_users.get('/', function (req, res) {
+  const get_books = new Promise((resolve, reject) => {
+    resolve(books);
+  });
+  get_books.then((bks) => {
+    res.send(JSON.stringify(bks, null, 4));
+  }).catch((err) => {
+    res.status(500).send(err);
+  });
 });
 
-// Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  const isbn = req.params.isbn;
-  res.send(books[isbn]);
- });
-  
-// Get book details based on author
-public_users.get('/author/:author',function (req, res) {
-  const author = req.params.author;
-  const keys = Object.keys(books);
-  const matchingBooks = [];
-  for (let key of keys) {
-    if (books[key].author === author) {
-      matchingBooks.push(books[key]);
+// Get book details based on ISBN using Promises (Task 11)
+public_users.get('/isbn/:isbn', function (req, res) {
+  const get_isbn = new Promise((resolve, reject) => {
+    const isbn = req.params.isbn;
+    if (books[isbn]) {
+      resolve(books[isbn]);
+    } else {
+      reject("Book not found");
     }
-  }
-  res.send(JSON.stringify(matchingBooks, null, 4));
+  });
+  get_isbn.then((bk) => {
+    res.send(JSON.stringify(bk, null, 4));
+  }).catch((err) => {
+    res.status(404).send(err);
+  });
+});
+  
+// Get book details based on author using Promises (Task 12)
+public_users.get('/author/:author', function (req, res) {
+  const get_author = new Promise((resolve, reject) => {
+    const author = req.params.author;
+    const keys = Object.keys(books);
+    const matchingBooks = [];
+    for (let key of keys) {
+      if (books[key].author === author) {
+        matchingBooks.push(books[key]);
+      }
+    }
+    resolve(matchingBooks);
+  });
+  get_author.then((bks) => {
+    res.send(JSON.stringify(bks, null, 4));
+  }).catch((err) => {
+    res.status(500).send(err);
+  });
 });
 
 // Get all books based on title
