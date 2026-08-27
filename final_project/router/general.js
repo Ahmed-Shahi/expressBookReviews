@@ -69,17 +69,24 @@ public_users.get('/author/:author', function (req, res) {
   });
 });
 
-// Get all books based on title
-public_users.get('/title/:title',function (req, res) {
-  const title = req.params.title;
-  const keys = Object.keys(books);
-  const matchingBooks = [];
-  for (let key of keys) {
-    if (books[key].title === title) {
-      matchingBooks.push(books[key]);
+// Get all books based on title using Promises (Task 13)
+public_users.get('/title/:title', function (req, res) {
+  const get_title = new Promise((resolve, reject) => {
+    const title = req.params.title;
+    const keys = Object.keys(books);
+    const matchingBooks = [];
+    for (let key of keys) {
+      if (books[key].title === title) {
+        matchingBooks.push(books[key]);
+      }
     }
-  }
-  res.send(JSON.stringify(matchingBooks, null, 4));
+    resolve(matchingBooks);
+  });
+  get_title.then((bks) => {
+    res.send(JSON.stringify(bks, null, 4));
+  }).catch((err) => {
+    res.status(500).send(err);
+  });
 });
 
 //  Get book review
